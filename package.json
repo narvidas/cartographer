@@ -1,0 +1,73 @@
+{
+  "name": "cartographer",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Cartographer - System Architecture Visualization",
+  "author": "Mark Narvidas",
+  "type": "module",
+  "scripts": {
+    "start": "scripts/quick-start.sh",
+    "start:ui": "vite",
+    "build:ui": "tsc -b && vite build",
+    "start:search": "docker-compose up -d && sleep 5 && yarn setup:search",
+    "setup:search": "node scripts/setup-meilisearch.js",
+    "clean:search": "docker compose down && docker volume rm cartographer-meilisearch_meili_data",
+    "map:databases": "node scripts/flatmap-databases.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "preview": "vite preview",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@meilisearch/instant-meilisearch": "^0.27.0",
+    "@radix-ui/react-slot": "^1.0.2",
+    "@visx/event": "^3.12.0",
+    "@visx/group": "^3.12.0",
+    "@visx/shape": "^3.12.0",
+    "@visx/tooltip": "^3.12.0",
+    "@visx/zoom": "^3.12.0",
+    "@xyflow/react": "^12.7.0",
+    "autoprefixer": "^10.4.21",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.0",
+    "d3-hierarchy": "^3.1.2",
+    "install": "^0.13.0",
+    "lucide-react": "^0.460.0",
+    "postcss": "^8.5.3",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "tailwind-merge": "^2.5.4",
+    "tailwindcss": "^3.4.0"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
+    "@eslint/js": "^9.25.0",
+    "@types/node": "^24.0.3",
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^4.4.1",
+    "eslint": "^9.25.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.1.2",
+    "prettier": "^3.6.2",
+    "tailwindcss-animate": "^1.0.7",
+    "typescript": "~5.8.3",
+    "typescript-eslint": "^8.30.1",
+    "vite": "^6.3.5"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,yml,yaml}": [
+      "prettier --write"
+    ]
+  }
+}

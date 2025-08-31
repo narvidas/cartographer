@@ -1,0 +1,100 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  height: 100vh;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* Add custom styles for React Flow */
+.react-flow__node {
+  cursor: pointer;
+}
+
+.react-flow__node:hover {
+  filter: brightness(1.05);
+}
+
+.react-flow__controls {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.react-flow__minimap {
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.react-flow__background {
+  background-color: #f9fafb;
+}
+
+/* Ensure React Flow container has proper dimensions */
+.react-flow {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.react-flow__viewport {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Ensure the main container takes full height */
+#root {
+  height: 100vh;
+}
+
+/* Custom scrollbar for the details panel */
+.details-panel-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.details-panel-scrollbar::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.details-panel-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.details-panel-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}

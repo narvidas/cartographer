@@ -1,0 +1,495 @@
+{
+  "external": [
+    {
+      "id": "ext-payment-gateway",
+      "name": "Payment Gateway (Stripe)",
+      "type": "external_service",
+      "endpoints": ["POST /v1/charges", "GET /v1/customers"]
+    },
+    {
+      "id": "ext-email-service",
+      "name": "Email Service (SendGrid)",
+      "type": "external_service",
+      "endpoints": ["POST /v3/mail/send"]
+    },
+    {
+      "id": "ext-cdn",
+      "name": "Content Delivery Network",
+      "type": "external_service"
+    }
+  ],
+  "services": [
+    {
+      "id": "svc-user-service",
+      "name": "user_service",
+      "size": "medium",
+      "language": "nodejs",
+      "context": "user-management",
+      "repoUrl": "https://github.com/example-org/user-service",
+      "description": "Handles user registration, authentication, and profile management with JWT token generation.",
+      "docLinks": ["https://docs.example.com/api/user-service", "https://wiki.example.com/user-management"],
+      "use_cases": ["user_registration", "authentication", "profile_management", "password_reset"],
+      "endpoints": [
+        "POST /auth/register",
+        "POST /auth/login",
+        "GET /users/{id}",
+        "PUT /users/{id}",
+        "POST /auth/reset-password",
+        "GET /health",
+        "GET /metrics"
+      ],
+      "endpointsCalled": ["svc-notification-service POST /notifications", "ext-email-service POST /v3/mail/send"],
+      "eventsPublished": ["user.registered", "user.login", "user.profile_updated", "user.password_reset"],
+      "eventsConsumed": ["order.completed", "payment.processed"],
+      "dbs": ["users"]
+    },
+    {
+      "id": "svc-product-catalog",
+      "name": "product_catalog",
+      "size": "large",
+      "language": "python",
+      "context": "catalog",
+      "repoUrl": "https://github.com/example-org/product-catalog",
+      "description": "Product catalog service managing product information, categories, pricing, and inventory data.",
+      "docLinks": ["https://docs.example.com/api/catalog", "https://docs.example.com/guides/product-management"],
+      "use_cases": ["product_management", "catalog_search", "pricing", "inventory_tracking"],
+      "endpoints": [
+        "GET /products",
+        "GET /products/{id}",
+        "POST /products",
+        "PUT /products/{id}",
+        "DELETE /products/{id}",
+        "GET /categories",
+        "POST /categories",
+        "GET /products/search",
+        "GET /health",
+        "GET /metrics"
+      ],
+      "endpointsCalled": [
+        "svc-inventory-service GET /inventory/{productId}",
+        "svc-price-engine GET /prices/{productId}"
+      ],
+      "eventsPublished": ["product.created", "product.updated", "product.deleted", "category.created", "price.updated"],
+      "eventsConsumed": ["inventory.updated", "order.item_purchased"],
+      "dbs": ["products", "categories"]
+    },
+    {
+      "id": "svc-order-service",
+      "name": "order_service",
+      "size": "large",
+      "language": "java",
+      "context": "order-management",
+      "repoUrl": "https://github.com/example-org/order-service",
+      "description": "Core order management service handling order creation, processing, fulfillment, and status tracking.",
+      "docLinks": ["https://docs.example.com/api/orders", "https://docs.example.com/guides/order-lifecycle"],
+      "use_cases": ["order_creation", "order_processing", "fulfillment", "order_tracking"],
+      "endpoints": [
+        "POST /orders",
+        "GET /orders",
+        "GET /orders/{id}",
+        "PUT /orders/{id}/status",
+        "POST /orders/{id}/cancel",
+        "GET /orders/{id}/tracking",
+        "POST /orders/{id}/refund",
+        "GET /health",
+        "GET /metrics"
+      ],
+      "endpointsCalled": [
+        "svc-payment-service POST /payments",
+        "svc-inventory-service POST /inventory/reserve",
+        "svc-shipping-service POST /shipments",
+        "svc-user-service GET /users/{id}"
+      ],
+      "eventsPublished": [
+        "order.created",
+        "order.confirmed",
+        "order.shipped",
+        "order.delivered",
+        "order.cancelled",
+        "order.refunded"
+      ],
+      "eventsConsumed": ["payment.processed", "payment.failed", "inventory.reserved", "shipment.created"],
+      "dbs": ["orders", "order_items"]
+    },
+    {
+      "id": "svc-payment-service",
+      "name": "payment_service",
+      "size": "medium",
+      "language": "golang",
+      "context": "payments",
+      "repoUrl": "https://github.com/example-org/payment-service",
+      "description": "Payment processing service integrating with multiple payment gateways and handling transaction management.",
+      "docLinks": ["https://docs.example.com/api/payments", "https://docs.example.com/guides/payment-processing"],
+      "use_cases": ["payment_processing", "refunds", "transaction_management", "payment_methods"],
+      "endpoints": [
+        "POST /payments",
+        "GET /payments/{id}",
+        "POST /payments/{id}/refund",
+        "POST /payment-methods",
+        "GET /payment-methods",
+        "DELETE /payment-methods/{id}",
+        "GET /health",
+        "GET /metrics"
+      ],
+      "endpointsCalled": ["ext-payment-gateway POST /v1/charges", "ext-payment-gateway POST /v1/refunds"],
+      "eventsPublished": ["payment.processed", "payment.failed", "payment.refunded", "payment_method.added"],
+      "eventsConsumed": ["order.created", "order.cancelled"],
+      "dbs": ["payments", "payment_methods"]
+    },
+    {
+      "id": "svc-inventory-service",
+      "name": "inventory_service",
+      "size": "medium",
+      "language": "python",
+      "context": "catalog",
+      "repoUrl": "https://github.com/example-org/inventory-service",
+      "description": "Inventory management service tracking stock levels, reservations, and warehouse operations.",
+      "docLinks": ["https://docs.example.com/api/inventory"],
+      "use_cases": ["stock_management", "reservations", "warehouse_operations", "stock_alerts"],
+      "endpoints": [
+        "GET /inventory/{productId}",
+        "POST /inventory/reserve",
+        "POST /inventory/release",
+        "PUT /inventory/{productId}/stock",
+        "GET /inventory/low-stock",
+        "GET /health",
+        "GET /metrics"
+      ],
+      "endpointsCalled": ["svc-product-catalog GET /products/{id}", "svc-notification-service POST /notifications"],
+      "eventsPublished": ["inventory.updated", "inventory.low_stock", "inventory.reserved", "inventory.released"],
+      "eventsConsumed": ["order.created", "order.cancelled", "product.created"],
+      "dbs": ["inventory"]
+    },
+    {
+      "id": "svc-notification-service",
+      "name": "notification_service",
+      "size": "small",
+      "language": "nodejs",
+      "context": "communications",
+      "repoUrl": "https://github.com/example-org/notification-service",
+      "description": "Notification service handling email, SMS, and push notifications across the platform.",
+      "docLinks": ["https://docs.example.com/api/notifications"],
+      "use_cases": ["email_notifications", "sms_notifications", "push_notifications", "notification_templates"],
+      "endpoints": [
+        "POST /notifications",
+        "POST /notifications/email",
+        "POST /notifications/sms",
+        "GET /notifications/{id}",
+        "GET /notifications/templates",
+        "POST /notifications/templates",
+        "GET /health",
+        "GET /metrics"
+      ],
+      "endpointsCalled": ["ext-email-service POST /v3/mail/send"],
+      "eventsPublished": ["notification.sent", "notification.failed"],
+      "eventsConsumed": ["user.registered", "order.confirmed", "order.shipped", "inventory.low_stock"],
+      "dbs": ["notifications", "notification_templates"]
+    },
+    {
+      "id": "svc-shipping-service",
+      "name": "shipping_service",
+      "size": "medium",
+      "language": "java",
+      "context": "fulfillment",
+      "repoUrl": "https://github.com/example-org/shipping-service",
+      "description": "Shipping and logistics service managing carriers, tracking, and delivery coordination.",
+      "docLinks": ["https://docs.example.com/api/shipping"],
+      "use_cases": ["shipping_calculation", "carrier_integration", "tracking", "delivery_coordination"],
+      "endpoints": [
+        "POST /shipments",
+        "GET /shipments/{id}",
+        "GET /shipments/{id}/tracking",
+        "POST /shipping/calculate",
+        "GET /carriers",
+        "POST /carriers/{id}/book",
+        "GET /health",
+        "GET /metrics"
+      ],
+      "endpointsCalled": [],
+      "eventsPublished": ["shipment.created", "shipment.picked_up", "shipment.in_transit", "shipment.delivered"],
+      "eventsConsumed": ["order.confirmed"],
+      "dbs": ["shipments", "carriers"]
+    },
+    {
+      "id": "svc-analytics-service",
+      "name": "analytics_service",
+      "size": "large",
+      "language": "python",
+      "context": "analytics",
+      "repoUrl": "https://github.com/example-org/analytics-service",
+      "description": "Analytics and reporting service collecting metrics and generating business intelligence reports.",
+      "docLinks": ["https://docs.example.com/api/analytics"],
+      "use_cases": ["data_collection", "reporting", "metrics", "business_intelligence"],
+      "endpoints": [
+        "POST /events",
+        "GET /reports/sales",
+        "GET /reports/users",
+        "GET /reports/inventory",
+        "GET /dashboards/{id}",
+        "POST /dashboards",
+        "GET /health",
+        "GET /metrics"
+      ],
+      "endpointsCalled": [],
+      "eventsPublished": ["analytics.report_generated"],
+      "eventsConsumed": ["user.registered", "order.created", "order.completed", "payment.processed", "product.created"],
+      "dbs": ["analytics", "reports"]
+    },
+    {
+      "id": "lambda-image-processor",
+      "name": "image_processor",
+      "type": "lambda",
+      "language": "python",
+      "context": "media",
+      "repoUrl": "https://github.com/example-org/lambda-image-processor",
+      "description": "AWS Lambda function for processing product images, generating thumbnails, and optimizing for web delivery.",
+      "use_cases": ["image_processing", "thumbnail_generation", "image_optimization"],
+      "endpoints": [],
+      "endpointsCalled": [],
+      "eventsPublished": ["image.processed", "image.failed"],
+      "eventsConsumed": ["product.image_uploaded"]
+    },
+    {
+      "id": "lambda-order-aggregator",
+      "name": "order_aggregator",
+      "type": "lambda",
+      "language": "nodejs",
+      "context": "analytics",
+      "repoUrl": "https://github.com/example-org/lambda-order-aggregator",
+      "description": "AWS Lambda function for aggregating order data and generating daily sales reports.",
+      "use_cases": ["data_aggregation", "report_generation", "sales_analytics"],
+      "endpoints": [],
+      "endpointsCalled": ["svc-analytics-service POST /events"],
+      "eventsPublished": ["daily_report.generated"],
+      "eventsConsumed": ["order.completed"]
+    },
+    {
+      "id": "lambda-inventory-alerts",
+      "name": "inventory_alerts",
+      "type": "lambda",
+      "language": "python",
+      "context": "catalog",
+      "repoUrl": "https://github.com/example-org/lambda-inventory-alerts",
+      "description": "AWS Lambda function for monitoring inventory levels and triggering restocking alerts.",
+      "use_cases": ["inventory_monitoring", "automated_alerts", "restocking"],
+      "endpoints": [],
+      "endpointsCalled": ["svc-notification-service POST /notifications"],
+      "eventsPublished": ["restock.alert_sent"],
+      "eventsConsumed": ["inventory.low_stock"]
+    },
+    {
+      "id": "svc-price-engine",
+      "name": "price_engine",
+      "size": "medium",
+      "language": "golang",
+      "context": "catalog",
+      "repoUrl": "https://github.com/example-org/price-engine",
+      "description": "Dynamic pricing engine handling price calculations, discounts, promotions, and pricing rules.",
+      "docLinks": ["https://docs.example.com/api/pricing"],
+      "use_cases": ["dynamic_pricing", "discount_calculation", "promotion_management", "pricing_rules"],
+      "endpoints": [
+        "GET /prices/{productId}",
+        "POST /prices/calculate",
+        "GET /promotions",
+        "POST /promotions",
+        "PUT /promotions/{id}",
+        "GET /discounts",
+        "POST /discounts",
+        "GET /health",
+        "GET /metrics"
+      ],
+      "endpointsCalled": ["svc-product-catalog GET /products/{id}"],
+      "eventsPublished": ["price.calculated", "promotion.activated", "discount.applied"],
+      "eventsConsumed": ["product.created", "product.updated"],
+      "dbs": ["prices", "promotions", "discounts"]
+    }
+  ],
+  "contexts": [
+    {
+      "id": "ctx-user-management",
+      "name": "User Management",
+      "context": "user-management",
+      "responsibility": "User authentication, registration, and profile management"
+    },
+    {
+      "id": "ctx-catalog",
+      "name": "Product Catalog",
+      "context": "catalog",
+      "responsibility": "Product information, inventory, and pricing management"
+    },
+    {
+      "id": "ctx-order-management",
+      "name": "Order Management",
+      "context": "order-management",
+      "responsibility": "Order processing, lifecycle management, and tracking"
+    },
+    {
+      "id": "ctx-payments",
+      "name": "Payments",
+      "context": "payments",
+      "responsibility": "Payment processing, transaction management, and financial operations"
+    },
+    {
+      "id": "ctx-fulfillment",
+      "name": "Fulfillment",
+      "context": "fulfillment",
+      "responsibility": "Shipping, logistics, and delivery coordination"
+    },
+    {
+      "id": "ctx-communications",
+      "name": "Communications",
+      "context": "communications",
+      "responsibility": "Notifications, messaging, and customer communications"
+    },
+    {
+      "id": "ctx-analytics",
+      "name": "Analytics",
+      "context": "analytics",
+      "responsibility": "Data collection, reporting, and business intelligence"
+    },
+    {
+      "id": "ctx-media",
+      "name": "Media",
+      "context": "media",
+      "responsibility": "Image processing, media storage, and content delivery"
+    }
+  ],
+  "databases": [
+    {
+      "id": "db-users",
+      "alias": "Users Database",
+      "name": "users",
+      "database_type": "postgresql",
+      "context": "user-management",
+      "description": "Primary database for user accounts, authentication, and profile data"
+    },
+    {
+      "id": "db-products",
+      "alias": "Products Database",
+      "name": "products",
+      "database_type": "postgresql",
+      "context": "catalog",
+      "description": "Product catalog data including descriptions, specifications, and metadata"
+    },
+    {
+      "id": "db-categories",
+      "alias": "Categories Database",
+      "name": "categories",
+      "database_type": "postgresql",
+      "context": "catalog",
+      "description": "Product categorization and taxonomy data"
+    },
+    {
+      "id": "db-orders",
+      "alias": "Orders Database",
+      "name": "orders",
+      "database_type": "postgresql",
+      "context": "order-management",
+      "description": "Order information and status tracking"
+    },
+    {
+      "id": "db-order-items",
+      "alias": "Order Items Database",
+      "name": "order_items",
+      "database_type": "postgresql",
+      "context": "order-management",
+      "description": "Individual items within orders and their details"
+    },
+    {
+      "id": "db-payments",
+      "alias": "Payments Database",
+      "name": "payments",
+      "database_type": "postgresql",
+      "context": "payments",
+      "description": "Payment transactions and financial records"
+    },
+    {
+      "id": "db-payment-methods",
+      "alias": "Payment Methods Database",
+      "name": "payment_methods",
+      "database_type": "postgresql",
+      "context": "payments",
+      "description": "Stored payment methods and customer billing information"
+    },
+    {
+      "id": "db-inventory",
+      "alias": "Inventory Database",
+      "name": "inventory",
+      "database_type": "postgresql",
+      "context": "catalog",
+      "description": "Stock levels, reservations, and warehouse data"
+    },
+    {
+      "id": "db-notifications",
+      "alias": "Notifications Database",
+      "name": "notifications",
+      "database_type": "postgresql",
+      "context": "communications",
+      "description": "Notification logs and delivery status"
+    },
+    {
+      "id": "db-notification-templates",
+      "alias": "Notification Templates",
+      "name": "notification_templates",
+      "database_type": "postgresql",
+      "context": "communications",
+      "description": "Email and notification templates"
+    },
+    {
+      "id": "db-shipments",
+      "alias": "Shipments Database",
+      "name": "shipments",
+      "database_type": "postgresql",
+      "context": "fulfillment",
+      "description": "Shipping information and tracking data"
+    },
+    {
+      "id": "db-carriers",
+      "alias": "Carriers Database",
+      "name": "carriers",
+      "database_type": "postgresql",
+      "context": "fulfillment",
+      "description": "Shipping carrier information and configurations"
+    },
+    {
+      "id": "db-analytics",
+      "alias": "Analytics Database",
+      "name": "analytics",
+      "database_type": "postgresql",
+      "context": "analytics",
+      "description": "Analytics events and metrics data"
+    },
+    {
+      "id": "db-reports",
+      "alias": "Reports Database",
+      "name": "reports",
+      "database_type": "postgresql",
+      "context": "analytics",
+      "description": "Generated reports and dashboard configurations"
+    },
+    {
+      "id": "db-prices",
+      "alias": "Prices Database",
+      "name": "prices",
+      "database_type": "postgresql",
+      "context": "catalog",
+      "description": "Product pricing data and price history"
+    },
+    {
+      "id": "db-promotions",
+      "alias": "Promotions Database",
+      "name": "promotions",
+      "database_type": "postgresql",
+      "context": "catalog",
+      "description": "Promotional campaigns and discount rules"
+    },
+    {
+      "id": "db-discounts",
+      "alias": "Discounts Database",
+      "name": "discounts",
+      "database_type": "postgresql",
+      "context": "catalog",
+      "description": "Discount codes and coupon management"
+    }
+  ]
+}

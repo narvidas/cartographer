@@ -1,0 +1,25 @@
+version: "3.8"
+
+services:
+  meilisearch:
+    image: getmeili/meilisearch:v1.15.2
+    platform: linux/arm64 # ensure ARM64 variant on Apple Silicon
+    container_name: cartographer-meilisearch
+    command: ["meilisearch", "--no-analytics", "--db-path", "/meili_data"]
+    ports:
+      - "7700:7700"
+    environment:
+      MEILI_MASTER_KEY: "change_this_in_production"
+      MEILI_ENV: "development"
+    volumes:
+      - meili_data:/meili_data # named volume (ext4 inside VM)
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:7700/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  meili_data:
+    driver: local
