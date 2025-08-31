@@ -6,7 +6,9 @@ Imagine [Backstage](https://backstage.io/), but completely seamless and turn-key
 
 Carographer is an interactive system architecture discovery and cataloguing tool, that combines powerful visual mapping with full-text search capabilities. Cartographer helps teams understand, explore, and document their system architecture through both a rich visual interface and structured data format, whilst delegating the tedious interface definitions and mapping to a large-language models.
 
-![](docs/preview.mp4)
+<div align="center">
+  <img src="docs/preview.gif" alt="Cartographer Preview" width="420">
+</div>
 
 ---
 
@@ -14,30 +16,34 @@ Carographer is an interactive system architecture discovery and cataloguing tool
 
 As enterprise architects and software engineering consultants, we sometimes find ourselves on an unfamiliar terrain, having to get up to speed quickly and learn years worth of architectural history in a matter of days. This is especially true within large microservice-heavy or legacy-ridden technical estates, where there's not one, but many communication channels to navigate (HTTP, gRPC, RabbitMQ, Kafka, etc.) and a lot of information to digest (endpoints, events, databases, documentation, etc.). In those cases, we need to quickly understand the architecture of the system, and document it in a way that is easy to understand and use.
 
-I built this tool to help me seamless create maps of the systems when consulting on architectural questions or across many domains, by leveraging Agentic AI to scan Git repositories and generate a structured system map representation. 
+I built this tool to help me seamlessly create maps of the systems when consulting on architectural questions or across many domains, by leveraging Agentic AI to scan Git repositories and generate a structured system map representation.
 
 ## Features
 
 Cartographer provides both a powerful visualization interface and a structured data format for documenting system architectures:
 
 ### Discovery
+
 - **Agentic AI**: Cartographer leverages Agentic AI to scan Git repositories and generate a structured system map representation.
 - **Continuous Updates**: Cartographer can be configured to continuously update the system map as the architecture evolves, thanks to Git repository monitoring and webhooks.
 - **Customizable**: Cartographer is customizable to fit your specific needs, with a flexible schema and extensible data model.
 
 ### Visual Interface
+
 - **Interactive System Map**: Rich visual representation of services, contexts, and databases with clickable components
-- **Entity Details Panel**: Deep dive into service details, endpoints, events, and relationships  
+- **Entity Details Panel**: Deep dive into service details, endpoints, events, and relationships
 - **Context-based Organization**: Group services by domain or team responsibility
 - **Responsive Design**: Works seamlessly on desktop and mobile devices
 
 ### Search & Discovery
+
 - **Powerful Full-text Search**: Search across all system components using Meilisearch
 - **Real-time Results**: Instant search results with highlighting and relevance scoring
 - **Multi-entity Search**: Find services, databases, endpoints, events, and documentation links
 - **Keyboard Shortcuts**: Quick access with `Shift+Cmd+F` (Mac) or `Shift+Ctrl+F` (Windows/Linux)
 
 ### Data-Driven Architecture
+
 - **Structured JSON Format**: Machine-readable system map in standardized format ([systems.json](public/systems.json))
 - **Version Controlled**: Track architecture evolution alongside your code
 - **Extensible Schema**: Easy to extend with custom fields and metadata
@@ -119,7 +125,7 @@ Cartographer includes powerful search capabilities powered by Meilisearch:
 - **Real-time Results**: See instant results as you type with relevance scoring
 - **Comprehensive Coverage**: Search across:
   - Service names, descriptions, and use cases
-  - API endpoints and event names  
+  - API endpoints and event names
   - Database names and types
   - Documentation links and repository URLs
   - Context names and responsibilities
